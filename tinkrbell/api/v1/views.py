@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from flask import Response, current_app, abort
+from flask import Response, current_app, abort, request
 
 import os
 
@@ -13,18 +13,34 @@ from . import application as app
 
 @app.route('/thumbnail/<int:size>/<path:uri>', methods=['GET'], endpoint='thumbnail')
 def thumbnail(size, uri):
-    """Generates a icon thumbnail of a resource"""
+    """
+    Generates a multisize icon of a resource.
+
+    Sizes:
+        - 256x256 will be saved as 32bpp 8bit alpha
+        - 48x48 will be saved as 32bpp 8bit alpha
+        - 48x48 will be saved as 8bpp 1bit alpha
+        - 32x32 will be saved as 32bpp 8bit alpha
+        - 32x32 will be saved as 8bpp 1bit alpha
+        - 32x32 will be saved as 4bpp 1bit alpha
+        - 16x16 will be saved as 32bpp 8bit alpha
+        - 16x16 will be saved as 8bpp 1bit alpha
+        - 16x16 will be saved as 4bpp 1bit alpha
+    """
     try:
         image_data = extract(uri)
+    except AttributeError:
+        current_app.logger.debug('URI not available')
+        abort(404)
     except:
         current_app.logger.info('Failed to extract image from URI', exc_info=True)
         abort(404)
 
     response = Response(
-        icon(image_data, size=(size, size)),
+        icon(image_data, size=size, multisized=(request.args.get('m') or request.args.get('multisized') or 'false').lower() in ['t', 'true', '1']),
         mimetype='image/x-icon')
-
-    response.headers['Content-Disposition'] = 'filename={}.ico'.format(os.path.basename(uri))
+    response.headers['Content-Disposition'] = 'filename={}.ico'.format(
+        os.path.basename(uri))
     return response
 
 
@@ -33,8 +49,8 @@ def thumbnail(size, uri):
 #     pass
 
 
-@app.route('/resize/<int:width>x<int:height>>/<path:uri>')
-@app.route('/resize/<int:width>x<int:height>/<path:uri>')
+@app.route('/resize/<int:width>x<int:height>>/<path:uri>', methods=['GET'])
+@app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
 def resize_by_boundingbox(width, height, uri):
     def boundingbox((width, height), (bbw, bbh)):
         if max((width - bbw), (height - bbh)) > 0:
@@ -59,5 +75,13 @@ def resize_by_boundingbox(width, height, uri):
         with Image(file=IterIO(response.iter_content(chunk_size=1 * 1024 * 1024))) as image:
             image.resize(*boundingbox((image.width, image.height), (width, height)))
 
-            response = Response(image.make_blob(), mimetype=response.headers['content-type'])
+            def _resize(width, height):
+                # TODO: This is just a shortcut to calculate resize
+                # NOTE: image.transform does not preserve animation
+                with image.clone() as img:
+                    img.transform(resize='{:d}x{:d}>'.format(width, height))
+                    return img.width, img.height
+
+            image.resize(*_resize(width, height))
+            response = Response(image.make_blob('png'), mimetype=response.headers['content-type'])
             return response
