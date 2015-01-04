@@ -7,60 +7,65 @@ import subprocess
 import shlex
 import contextlib
 import requests
+import datetime
 
 from wand.image import Image
 from wand.font import Font
 from werkzeug.contrib.iterio import IterIO
 
+from tinkrbell import cache
 from tinkrbell.utils import mimetype
 from tinkrbell.utils.ffmpeg import ffmpeg
 
 
-def default(fp, preset):
-    return
+def image(uri, size=None):
+    @cache.memoize()
+    def _image(uri):
+        current_app.logger.debug('Fetching %s', uri)
+        with contextlib.closing(requests.get(uri, stream=True)) as response:
+            response.raise_for_status()
+            return response.content
+    return Image(blob=_image(uri))
 
 
-def image(uri, size=None, default=None):
-    with contextlib.closing(requests.get(uri, stream=True)) as response:
-        response.raise_for_status()
-        return Image(file=IterIO(response.iter_content(chunk_size=1 * 1024 * 1024)))
+def video(uri, size=None, clip_at=None):
+    @cache.memoize()
+    def _video(uri):
+        # ffmpeg -ss 3 -i input.mp4 -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr fps=fps=1/600 out%02d.jpg
+        # ffmpeg -ss 3 -i ~/Videos/b.mov -vf "select=gt(scene\,0.2)" -vsync vfr -f image2 out%02d.jpg
+        # ffmpeg -i ~/Videos/sintel_4k.mov -vf "select=gt(scene\,0.01)" -vf "select=gte(t\,15)" -vsync vfr -vframes 1 -f image2 -y poster.jpg
+        # ffmpeg -ss 3 -i ~/Videos/b.mmov -vf "select=gt(scene\,0.5)" -vsync vfr -frames:v 1 -f image2 -y poster.jpg
+
+        process = ffmpeg('-loglevel debug -i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
+            input=uri, output='pipe:1',
+            format='image2',
+            # size=size_filter,
+            clip_at='-ss {}'.format(clip_at) if clip_at else '',
+        ), stdout=subprocess.PIPE)
+
+        stdout, __ = process.communicate()
+        if process.returncode != 0:
+            raise Exception('ffmpeg error')
+        return stdout
+    return Image(blob=_video(uri))
 
 
-def video(uri, size=None, clip_at=None, default=None):
-    # size_filter = ''
-    # if size:
-    #     size_filter = '-s {}'.format(size) if size else ''
-    # elif quality:
-    #     size_filter = '-vf scale="trunc(oh*a/2)*2:{}"'.format(quality) if quality else ''
+def audio(uri, size=None):
+    @cache.memoize()
+    def _audio(uri):
+        process = ffmpeg('-i "{input}" -frames:v 1 -an -dn -sn -f {format} {output}'.format(
+            input=uri, output='pipe:1',
+            format='image2',
+        ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    process = ffmpeg('{clip_at} -i "{input}" -vframes 1 -f {format} {output}'.format(
-        input=uri, output='pipe:1',
-        format='image2',
-        # size=size_filter,
-        clip_at='-ss {}'.format(clip_at) if clip_at else '',
-    ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    stdout, stderr = process.communicate()
-    if process.returncode != 0:
-        raise Exception(stderr)
-    return Image(blob=stdout)
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            raise Exception(stderr)
+        return stdout
+    return Image(blob=_audio(uri))
 
 
-def audio(uri, size=None, default=None):
-    process = ffmpeg('-i "{input}" -an -dn -sn -vframes 1 -f {format} {output}'.format(
-        input=uri, output='pipe:1',
-        format='image2',
-        # size=size_filter,
-        # clip_at='-ss {}'.format(clip_at) if clip_at else '',
-    ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    stdout, stderr = process.communicate()
-    if process.returncode != 0:
-        raise Exception(stderr)
-    return Image(blob=stdout)
-
-
-def text(uri, size=None):
+def text(uri, size=None, font='/home/intrepid/.fonts/Roboto-Black.ttf'):
     width, height = size or (256, 256)
     padding = 0
 
@@ -73,7 +78,7 @@ def text(uri, size=None):
         image.caption(content,
             left=padding, top=padding,
             width=width - padding, height=height - padding,
-            font=Font(path='/home/intrepid/.fonts/Roboto-Black.ttf', size=12))
+            font=Font(path=font, size=12))
         return image
 
 
@@ -85,9 +90,11 @@ EXTRACTORS = {
 }
 
 
+# @cache.memoize(timeout=datetime.timedelta(minutes=1).total_seconds())
 def extract(uri):
     type, subtype = mimetype(uri).split('/', 2)
     extractor = EXTRACTORS.get((type, subtype)) or EXTRACTORS.get((type, '*'))
     current_app.logger.debug(
-        'Using preview generator: (%s/%s) %s.%s', type, subtype, extractor.__module__, extractor.__name__)
+        'Using image extractor %s.%s for (%s/%s)', extractor.__module__, extractor.__name__, type, subtype)
+    # TODO: cache the response
     return extractor(uri)
