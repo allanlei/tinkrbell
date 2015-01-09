@@ -31,9 +31,9 @@ def get_thumbnail():
 
 def best_match():
     FORMATS = {
-        'image/webp': 'webp',
-        'image/jpeg': 'pjpeg',
         'image/jpeg': 'jpeg',
+        'image/pjpeg': 'pjpeg',
+        'image/webp': 'webp',
         'image/png': 'png',
     }
     mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
@@ -41,7 +41,6 @@ def best_match():
 
     current_app.logger.debug(
         'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
-
     if quality != 1:
         return None, None
     return mimetype, FORMATS[mimetype]
