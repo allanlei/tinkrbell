@@ -18,24 +18,9 @@ def mimetype(uri):
 
 
 def icon(image, size, multisized=False):
-    """
-    Converts an image file-like object into a ICO image
-    """
-    # def boundingbox((width, height), (bbw, bbh)):
-    #     if max((width - bbw), (height - bbh)) > 0:
-    #         if (width - bbw) > (height - bbh):
-    #             resized_width = bbw
-    #             resized_height = height / (width/resized_width)
-    #         else:
-    #             resized_height = bbh
-    #             resized_width = width / (height/resized_height)
-    #     else:
-    #         resized_width, resized_height = width, height
-    #     return int(resized_width), int(resized_height)
+    """Converts an image file-like object into a ICO image"""
     def _icon(img, (width, height)):
         ico = Image(width=width, height=height)
-        # image.resize(*boundingbox(image.size, (size, size)))
-        # Note: image.transform does not preserve animation
         img.transform(resize='{:d}x{:d}>'.format(width, height))
         ico.composite(img,
             top=int((ico.height - img.height) / 2),

@@ -19,16 +19,6 @@ def iconify(image, sizes=None):
         icon(image, size, multisized=multisized), mimetype='image/x-icon')
 
 
-def get_thumbnail():
-    try:
-        image = extract(uri)
-    except AttributeError:
-        current_app.logger.debug('URI not available')
-    except:
-        current_app.logger.info('Failed to extract image from URI', exc_info=True)
-    return icon(image, size=size, multisized=multisized)
-
-
 def best_match():
     FORMATS = {
         'image/jpeg': 'jpeg',
@@ -44,6 +34,3 @@ def best_match():
     current_app.logger.debug(
         'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
     return mimetype, FORMATS[mimetype]
-    # return best == 'application/json' and \
-    #     request.accept_mimetypes[best] > \
-    #     request.accept_mimetypes['text/html']
