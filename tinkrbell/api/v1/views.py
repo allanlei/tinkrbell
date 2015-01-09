@@ -66,10 +66,15 @@ def preview(uri, width, height):
 
         with image:
             image.resize(*calculators.boundingbox(image, (width, height)))
+
             if format:
                 image.format = format
             else:
                 mimetype = image.mimetype
+
+            if image.format.lower() == 'jpeg':
+                image.format = 'pjpeg'
+
             response = Response(image.make_blob(), mimetype=mimetype)
             return response
 
