@@ -54,9 +54,9 @@
 
 		<div class="row" id="preview" ng-repeat="size in availableSizes">
       <div class="col-sm-3 col-sm-offset-2" style="text-align: right;">
-        <img ng-src="{{ url_for('thumbnail', {uri: uri, size: size}) }}" ng-attr-width="{{ size }}" ng-attr-height="{{ size }}" />
+        <img ng-src="{{ url_for('icon', {uri: uri, size: size}) }}" ng-attr-width="{{ size }}" ng-attr-height="{{ size }}" />
         <br>
-        <a ng-attr-href="{{ url_for('thumbnail', {uri: uri, size: size}) }}">
+        <a ng-attr-href="{{ url_for('icon', {uri: uri, size: size}) }}">
           <small class="text-muted">{{ size }} x {{ size }}</small>
         </a>
       </div>
@@ -64,9 +64,9 @@
         <h5>{{ size }} x {{ size }}</h5>
       </div>
       <div class="col-sm-3">
-        <img ng-src="{{ url_for('thumbnail_multi', {uri: uri}) }}" ng-attr-width="{{ size }}" ng-attr-height="{{ size }}" />
+        <img ng-src="{{ url_for('icon_multi', {uri: uri}) }}" ng-attr-width="{{ size }}" ng-attr-height="{{ size }}" />
         <br>
-        <a ng-attr-href="{{ url_for('thumbnail_multi', {uri: uri}) }}">
+        <a ng-attr-href="{{ url_for('icon_multi', {uri: uri}) }}">
           <small class="text-muted">{{ size }} x {{ size }}</small>
         </a>
       </div>
@@ -104,8 +104,8 @@
         })($location.search().api || '//localhost:8000');
 
   			var urlconf = {
-          'thumbnail': '/1/thumbnail/%(size)s/%(uri)s',
-          'thumbnail_multi': '/1/thumbnail/%(uri)s'
+          'icon': '/1/icon/%(size)s/%(uri)s',
+          'icon_multi': '/1/icon/%(uri)s'
   			};
   			return function (endpoint, kwargs) {
   				return API_ENDPOINT + _.str.sprintf(urlconf[endpoint], kwargs);

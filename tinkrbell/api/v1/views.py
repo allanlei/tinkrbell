@@ -8,15 +8,17 @@ import os
 from wand.image import Image
 
 from tinkrbell.utils import icon
-from tinkrbell.extractors import extract
+from tinkrbell import extractors
 
 from . import application as app, cache
 
 
 @app.route('/thumbnail/<int:size>/<path:uri>', methods=['GET'], defaults={'multisized': False})
 @app.route('/thumbnail/<path:uri>', methods=['GET'], endpoint='thumbnail', defaults={'size': 256, 'multisized': True})
+@app.route('/icon/<int:size>/<path:uri>', methods=['GET'], defaults={'multisized': False})
+@app.route('/icon/<path:uri>', methods=['GET'], endpoint='icon', defaults={'size': 256, 'multisized': True})
 @cache.cached()
-def thumbnail(size, uri, multisized):
+def icon(size, uri, multisized):
     """
     Generates a multisize icon of a resource.
 
@@ -32,7 +34,7 @@ def thumbnail(size, uri, multisized):
         - 16x16 will be saved as 4bpp 1bit alpha
     """
     try:
-        image = extract(uri)
+        image = extractors.extract(uri)
     except AttributeError:
         current_app.logger.debug('URI not available')
         abort(404)
@@ -48,10 +50,13 @@ def thumbnail(size, uri, multisized):
     return response
 
 
-@app.route('/resize/<int:width>x<int:height>>/<path:uri>', methods=['GET'])
+# @app.route('/resize/<int:width>x<int:height>>/<path:uri>', methods=['GET'])
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
 @cache.cached()
 def resize_by_boundingbox(width, height, uri):
+    """
+    Generates a preview of the image at URI, returning a resized image in the same format
+    """
     # def boundingbox(image, (bbw, bbh)):
     #     if max((width - bbw), (height - bbh)) > 0:
     #         if (width - bbw) > (height - bbh):
@@ -72,7 +77,7 @@ def resize_by_boundingbox(width, height, uri):
             return img.width, img.height
 
     try:
-        image = extract(uri)
+        image = extractors.image(uri)
     except AttributeError:
         current_app.logger.debug('URI not available')
         abort(404)
