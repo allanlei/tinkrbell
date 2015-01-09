@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from flask import Response, current_app, abort, request
 
 import os
+import base64
+import binascii
 
 from wand.image import Image
 
@@ -37,8 +39,16 @@ def icon(uri, size):
     return response
 
 
+def preview_key_fn():
+    return 'view/({UA})/{path}'.format(
+        UA=base64.b64encode(bytes([
+            binascii.crc32(bytes(request.accept_mimetypes)),
+        ])),
+        path=request.path,
+    )
+
 @app.route('/preview/<int:width>x<int:height>/<path:uri>', methods=['GET'], endpoint='preview')
-@cache.cached(key_prefix=lambda: 'view/(%s)/%s' % (request.accept_mimetypes, request.path))
+@cache.cached(key_prefix=preview_key_fn)
 def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.
