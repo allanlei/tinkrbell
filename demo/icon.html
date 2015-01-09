@@ -113,7 +113,7 @@
   		}])
   		.controller('IconController', ['$scope', '$log', 'url_for', function ($scope, $log, url_for) {
         $scope.url_for = url_for;
-        $scope.availableSizes = [16, 32, 48, 96, 128, 256];
+        $scope.availableSizes = [16, 32, 48, 256];
         
         $scope.$watch('src', _.debounce(function () {
           $scope.$apply(function () {

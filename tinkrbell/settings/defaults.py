@@ -4,8 +4,21 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 
+"""
+Sizes:
+    - 256x256 will be saved as 32bpp 8bit alpha
+    - 48x48 will be saved as 32bpp 8bit alpha
+    - 48x48 will be saved as 8bpp 1bit alpha
+    - 32x32 will be saved as 32bpp 8bit alpha
+    - 32x32 will be saved as 8bpp 1bit alpha
+    - 32x32 will be saved as 4bpp 1bit alpha
+    - 16x16 will be saved as 32bpp 8bit alpha
+    - 16x16 will be saved as 8bpp 1bit alpha
+    - 16x16 will be saved as 4bpp 1bit alpha
+"""
 AVAILABLE_ICON_SIZES = os.environ.get('AVAILABLE_ICON_SIZES', '').split() or (
-    16, 32, 48, 96, 128, 256,
+    # 16, 32, 48, 96, 128, 256,
+    16, 32, 48, 256,
 )
 
 
