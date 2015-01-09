@@ -31,14 +31,19 @@ def get_thumbnail():
 
 def best_match():
     FORMATS = {
-        'image/webp': 'webp',
-        'image/jpeg': 'pjpeg',
         'image/jpeg': 'jpeg',
+        'image/pjpeg': 'pjpeg',
+        'image/webp': 'webp',
+        'image/png': 'png',
     }
-    best_match_mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
-    quality = request.accept_mimetypes[best_match_mimetype]
-    return best_match_mimetype, FORMATS[best_match_mimetype]
+    mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
+    quality = request.accept_mimetypes[mimetype]
 
+    if quality != 1:
+        return None, None
+    current_app.logger.debug(
+        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
+    return mimetype, FORMATS[mimetype]
     # return best == 'application/json' and \
     #     request.accept_mimetypes[best] > \
     #     request.accept_mimetypes['text/html']
