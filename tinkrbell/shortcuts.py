@@ -34,11 +34,17 @@ def best_match():
         'image/webp': 'webp',
         'image/jpeg': 'pjpeg',
         'image/jpeg': 'jpeg',
+        'image/png': 'png',
     }
-    best_match_mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
-    quality = request.accept_mimetypes[best_match_mimetype]
-    return best_match_mimetype, FORMATS[best_match_mimetype]
+    mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
+    quality = request.accept_mimetypes[mimetype]
 
+    current_app.logger.debug(
+        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
+
+    if quality != 1:
+        return None, None
+    return mimetype, FORMATS[mimetype]
     # return best == 'application/json' and \
     #     request.accept_mimetypes[best] > \
     #     request.accept_mimetypes['text/html']
