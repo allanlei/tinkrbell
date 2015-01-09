@@ -65,6 +65,7 @@ def preview(uri, width, height):
         mimetype, format = best_match()
 
         with image:
+            image.compression_quality = 80
             image.resize(*calculators.boundingbox(image, (width, height)))
 
             if format:
@@ -75,6 +76,7 @@ def preview(uri, width, height):
             if image.format.lower() == 'jpeg':
                 image.format = 'pjpeg'
 
+            current_app.logger.debug('Generating preview in %s of %s', image.format, uri)
             response = Response(image.make_blob(), mimetype=mimetype)
             return response
 
