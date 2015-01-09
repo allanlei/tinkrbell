@@ -39,10 +39,10 @@ def best_match():
     mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
     quality = request.accept_mimetypes[mimetype]
 
-    current_app.logger.debug(
-        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
     if quality != 1:
         return None, None
+    current_app.logger.debug(
+        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
     return mimetype, FORMATS[mimetype]
     # return best == 'application/json' and \
     #     request.accept_mimetypes[best] > \
