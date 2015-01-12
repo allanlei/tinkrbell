@@ -6,7 +6,7 @@ from flask.ext.cache import Cache
 
 
 cache = Cache()
-application = app = Blueprint('apiv1', __name__)
+application = app = Blueprint('tinkrbell.apiv1', __name__)
 
 
 @app.route('/')
