@@ -35,11 +35,6 @@ def image(uri, size=None):
 def video(uri, size=None, clip_at=None):
     @cache.memoize()
     def _video(uri):
-        # ffmpeg -ss 3 -i input.mp4 -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr fps=fps=1/600 out%02d.jpg
-        # ffmpeg -ss 3 -i ~/Videos/b.mov -vf "select=gt(scene\,0.2)" -vsync vfr -f image2 out%02d.jpg
-        # ffmpeg -i ~/Videos/sintel_4k.mov -vf "select=gt(scene\,0.01)" -vf "select=gte(t\,15)" -vsync vfr -vframes 1 -f image2 -y poster.jpg
-        # ffmpeg -ss 3 -i ~/Videos/b.mmov -vf "select=gt(scene\,0.5)" -vsync vfr -frames:v 1 -f image2 -y poster.jpg
-
         process = ffmpeg('-loglevel debug -i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
             format='image2',
