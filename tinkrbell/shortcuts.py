@@ -9,14 +9,7 @@ from .utils import icon
 
 
 def iconify(image, sizes=None):
-    if not sizes:
-        size, multisized = current_app.config['AVAILABLE_ICON_SIZES'][-1], True
-    elif len(sizes) > 1:
-        size, multisized = sizes.pop(), True
-    else:
-        size, multisized = sizes.pop(), False
-    return Response(
-        icon(image, size, multisized=multisized), mimetype='image/x-icon')
+    return Response(icon(image, sizes=sizes), mimetype='image/x-icon')
 
 
 def best_match():

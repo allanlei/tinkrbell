@@ -51,35 +51,30 @@ def mimetype(uri):
     return mtype
 
 
-def icon(image, size, multisized=False):
+def icon(image, sizes=None):
     """Converts an image file-like object into a ICO image"""
-    def _icon(img, (width, height)):
-        ico = Image(width=width, height=height)
-        img.transform(resize='{:d}x{:d}>'.format(width, height))
-        ico.composite(img,
-            top=int((ico.height - img.height) / 2),
-            left=int((ico.width - img.width) / 2),
-        )
-        return ico
+    def _icons(img, sizes):
+        with img.clone() as img:
+            for size in reversed(sorted(sizes)):
+                width, height = size, size
+                # ico = Image(width=width, height=height)
+                img.transform(resize='{:d}x{:d}>'.format(width, height))
+                # ico.composite(img,
+                #     top=int((ico.height - img.height) / 2),
+                #     left=int((ico.width - img.width) / 2),
+                # )
+                # yield ico
+                yield img.clone()
 
-    with _icon(image.clone(), (size, size)) as ico:
-        if multisized:
-            with futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as pool:
-                jobs = {
-                    pool.submit(_icon, image.clone(), (s, s)): (s, s)
-                        for s in current_app.config['AVAILABLE_ICON_SIZES'] if s < size
-                }
+    sizes = sizes or current_app.config['AVAILABLE_ICON_SIZES']
+    icons = _icons(image, sizes=sizes)
+    with icons.next() as ico:
+        current_app.logger.debug('Added icon size: %dx%d', ico.width, ico.height)
 
-                for job in futures.as_completed(jobs):
-                    width, height = jobs[job]
-                    try:
-                        multisizeico = job.result()
-                    except:
-                        current_app.logger.error(
-                            'Could not generate icon: %dx%d', width, height, exc_info=True)
-                    else:
-                        ico.sequence.append(multisizeico)
-                        current_app.logger.debug(
-                            'Adding multisize icon: %dx%d', width, height)
-
+        for subicon in icons:
+            ico.sequence.append(subicon)
+            current_app.logger.debug(
+                'Added icon size: %dx%d', subicon.width, subicon.height)
+        # ico.save(filename='lols.ico',)
+        ico.strip()
         return ico.make_blob('ico')
