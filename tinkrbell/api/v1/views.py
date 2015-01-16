@@ -32,11 +32,7 @@ def icon(uri, size):
         current_app.logger.info(
             'Failed to extract image from URI', exc_info=True)
         abort(404)
-
-    response = iconify(image, sizes=[size] if size else None)
-    response.headers['Content-Disposition'] = 'filename={}.ico'.format(
-        os.path.basename(uri))
-    return response
+    return iconify(image, sizes=[size] if size else None)
 
 
 def preview_key_fn():
@@ -77,8 +73,7 @@ def preview(uri, width, height):
                 image.format = 'pjpeg'
 
             current_app.logger.debug('Generating preview in %s of %s', image.format, uri)
-            response = Response(image.make_blob(), mimetype=mimetype)
-            return response
+            return Response(image.make_blob(), mimetype=mimetype)
 
 
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
@@ -98,5 +93,4 @@ def resize_by_boundingbox(uri, width, height):
     else:
         with image:
             image.resize(*calculators.boundingbox(image, (width, height)))
-            response = Response(image.make_blob(), mimetype=image.mimetype)
-            return response
+            return Response(image.make_blob(), mimetype=image.mimetype)

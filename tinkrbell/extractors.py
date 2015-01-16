@@ -13,9 +13,13 @@ from wand.image import Image
 from wand.font import Font
 from werkzeug.contrib.iterio import IterIO
 
-from tinkrbell import cache
+from tinkrbell import cache, utils
 from tinkrbell.utils import mimetype
 from tinkrbell.utils.ffmpeg import ffmpeg
+
+
+class ExtractionError(Exception):
+    pass
 
 
 def image(uri, size=None):
@@ -28,24 +32,22 @@ def image(uri, size=None):
     return Image(blob=_image(uri))
 
 
-def video(uri, size=None, clip_at=None):
+def video(uri, size=None):
     @cache.memoize()
     def _video(uri):
-        # ffmpeg -ss 3 -i input.mp4 -vf "select=gt(scene\,0.4)" -frames:v 5 -vsync vfr fps=fps=1/600 out%02d.jpg
-        # ffmpeg -ss 3 -i ~/Videos/b.mov -vf "select=gt(scene\,0.2)" -vsync vfr -f image2 out%02d.jpg
-        # ffmpeg -i ~/Videos/sintel_4k.mov -vf "select=gt(scene\,0.01)" -vf "select=gte(t\,15)" -vsync vfr -vframes 1 -f image2 -y poster.jpg
-        # ffmpeg -ss 3 -i ~/Videos/b.mmov -vf "select=gt(scene\,0.5)" -vsync vfr -frames:v 1 -f image2 -y poster.jpg
-
-        process = ffmpeg('-loglevel debug -i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
-            input=uri, output='pipe:1',
+        process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
+            input=utils.uri(uri), output='pipe:1',
             format='image2',
-            # size=size_filter,
-            clip_at='-ss {}'.format(clip_at) if clip_at else '',
+            # Frame selection:
+            #   - Scan rate 1 FPS
+            #   - max scan time of t=10s
+            #   - > 40% scene change
+            scan_fps=1, max_scan_time=10, scene_change=0.4,
         ), stdout=subprocess.PIPE)
 
         stdout, __ = process.communicate()
         if process.returncode != 0:
-            raise Exception('ffmpeg error')
+            raise ExtractionError('FFmpeg error {}'.format(process.returncode))
         return stdout
     return Image(blob=_video(uri))
 
@@ -54,13 +56,13 @@ def audio(uri, size=None):
     @cache.memoize()
     def _audio(uri):
         process = ffmpeg('-i "{input}" -frames:v 1 -an -dn -sn -f {format} {output}'.format(
-            input=uri, output='pipe:1',
+            input=utils.uri(uri), output='pipe:1',
             format='image2',
-        ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ), stdout=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         if process.returncode != 0:
-            raise Exception(stderr)
+            raise ExtractionError('FFmpeg error {}'.format(process.returncode))
         return stdout
     return Image(blob=_audio(uri))
 
