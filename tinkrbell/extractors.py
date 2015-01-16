@@ -18,6 +18,10 @@ from tinkrbell.utils import mimetype
 from tinkrbell.utils.ffmpeg import ffmpeg
 
 
+class ExtractionError(Exception):
+    pass
+
+
 def image(uri, size=None):
     @cache.memoize()
     def _image(uri):
@@ -45,7 +49,7 @@ def video(uri, size=None, clip_at=None):
 
         stdout, __ = process.communicate()
         if process.returncode != 0:
-            raise Exception('ffmpeg error')
+            raise ExtractionError('FFmpeg error {}'.format(process.returncode))
         return stdout
     return Image(blob=_video(uri))
 
@@ -56,11 +60,11 @@ def audio(uri, size=None):
         process = ffmpeg('-i "{input}" -frames:v 1 -an -dn -sn -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
             format='image2',
-        ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ), stdout=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         if process.returncode != 0:
-            raise Exception(stderr)
+            raise ExtractionError('FFmpeg error {}'.format(process.returncode))
         return stdout
     return Image(blob=_audio(uri))
 
