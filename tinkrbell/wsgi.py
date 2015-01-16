@@ -15,6 +15,7 @@ def get_application(root_path=None):
 
     from . import cache
     import tinkrbell.api.v1
+
     cache.init_app(app, config={'CACHE_TYPE': 'simple'})
     tinkrbell.api.v1.cache.init_app(app, config={
         'CACHE_TYPE': 'simple',
@@ -23,6 +24,7 @@ def get_application(root_path=None):
 
     import tinkrbell
     import tinkrbell.api.v1
+
     app.register_blueprint(tinkrbell.application)
     app.register_blueprint(tinkrbell.api.v1.application, url_prefix='/1')
 

@@ -21,6 +21,6 @@ cache = Cache()
 from flask import Blueprint
 from flask import current_app, request
 
-application = Blueprint('tinkrbell', __name__, static_folder='static')
+application = Blueprint('tinkrbell', __name__)
 
 from . import views
