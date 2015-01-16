@@ -35,7 +35,7 @@ def image(uri, size=None):
 def video(uri, size=None, clip_at=None):
     @cache.memoize()
     def _video(uri):
-        process = ffmpeg('-loglevel debug -i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
+        process = ffmpeg('-i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
             format='image2',
             # size=size_filter,
