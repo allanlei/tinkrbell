@@ -88,7 +88,7 @@ EXTRACTORS = {
     ('image', '*'): image,
     ('video', '*'): video,
     ('audio', '*'): audio,
-    ('text', '*'): text,
+    # ('text', '*'): text,
 }
 
 
