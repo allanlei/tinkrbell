@@ -13,7 +13,7 @@ from wand.image import Image
 from wand.font import Font
 from werkzeug.contrib.iterio import IterIO
 
-from tinkrbell import cache
+from tinkrbell import cache, utils
 from tinkrbell.utils import mimetype
 from tinkrbell.utils.ffmpeg import ffmpeg
 
@@ -37,7 +37,7 @@ def video(uri, size=None, clip_at=None):
         # ffmpeg -ss 3 -i ~/Videos/b.mmov -vf "select=gt(scene\,0.5)" -vsync vfr -frames:v 1 -f image2 -y poster.jpg
 
         process = ffmpeg('-loglevel debug -i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
-            input=uri, output='pipe:1',
+            input=utils.uri(uri), output='pipe:1',
             format='image2',
             # size=size_filter,
             clip_at='-ss {}'.format(clip_at) if clip_at else '',
@@ -54,7 +54,7 @@ def audio(uri, size=None):
     @cache.memoize()
     def _audio(uri):
         process = ffmpeg('-i "{input}" -frames:v 1 -an -dn -sn -f {format} {output}'.format(
-            input=uri, output='pipe:1',
+            input=utils.uri(uri), output='pipe:1',
             format='image2',
         ), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
