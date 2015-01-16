@@ -32,14 +32,17 @@ def image(uri, size=None):
     return Image(blob=_image(uri))
 
 
-def video(uri, size=None, clip_at=None):
+def video(uri, size=None):
     @cache.memoize()
     def _video(uri):
-        process = ffmpeg('-i "{input}" -vf "select=gte(scene\,0.1)" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
+        process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
             format='image2',
-            # size=size_filter,
-            clip_at='-ss {}'.format(clip_at) if clip_at else '',
+            # Frame selection:
+            #   - Scan rate 1 FPS
+            #   - max scan time of t=10s
+            #   - > 40% scene change
+            scan_fps=1, max_scan_time=10, scene_change=0.4,
         ), stdout=subprocess.PIPE)
 
         stdout, __ = process.communicate()
