@@ -5,7 +5,7 @@ from flask import current_app, request, Response
 
 from . import errors
 from .extractors import extract
-from .utils import icon
+from .utils.icons import icon
 
 
 def iconify(image, sizes=None):
