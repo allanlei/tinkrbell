@@ -22,7 +22,7 @@ class ExtractionError(Exception):
     pass
 
 
-def image(uri, size=None):
+def image(uri, size=None, timeout=None):
     @cache.memoize()
     def _image(uri):
         current_app.logger.debug('Fetching %s', uri)
@@ -32,7 +32,7 @@ def image(uri, size=None):
     return Image(blob=_image(uri))
 
 
-def video(uri, size=None):
+def video(uri, size=None, timeout=None, probesize=None):
     @cache.memoize()
     def _video(uri):
         process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
@@ -52,7 +52,7 @@ def video(uri, size=None):
     return Image(blob=_video(uri))
 
 
-def audio(uri, size=None):
+def audio(uri, size=None, timeout=None):
     @cache.memoize()
     def _audio(uri):
         process = ffmpeg('-i "{input}" -frames:v 1 -an -dn -sn -f {format} {output}'.format(
@@ -67,7 +67,7 @@ def audio(uri, size=None):
     return Image(blob=_audio(uri))
 
 
-def text(uri, size=None, font='/home/intrepid/.fonts/Roboto-Black.ttf'):
+def text(uri, size=None, font='/home/intrepid/.fonts/Roboto-Black.ttf', timeout=None):
     width, height = size or (256, 256)
     padding = 0
 
@@ -93,10 +93,10 @@ EXTRACTORS = {
 
 
 # @cache.memoize(timeout=datetime.timedelta(minutes=1).total_seconds())
-def extract(uri):
+def extract(uri, timeout=datetime.timedelta(seconds=5).total_seconds()):
     type, subtype = mimetype(uri).split('/', 2)
     extractor = EXTRACTORS.get((type, subtype)) or EXTRACTORS.get((type, '*'))
     current_app.logger.debug(
         'Using image extractor %s.%s for (%s/%s)', extractor.__module__, extractor.__name__, type, subtype)
     # TODO: cache the response
-    return extractor(uri)
+    return extractor(uri, timeout=timeout)
