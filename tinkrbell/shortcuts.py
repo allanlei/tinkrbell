@@ -15,7 +15,7 @@ def best_match():
     FORMATS = {
         'image/jpeg': 'jpeg',
         'image/pjpeg': 'pjpeg',
-        'image/webp': 'webp',
+        # 'image/webp': 'webp',
         'image/png': 'png',
     }
     mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
