@@ -67,7 +67,7 @@ def audio(uri, size=None, timeout=None):
     return Image(blob=_audio(uri))
 
 
-def text(uri, size=None, font='/home/intrepid/.fonts/Roboto-Black.ttf', timeout=None):
+def text(uri, size=None, font='Roboto-Black.ttf', timeout=None):
     width, height = size or (256, 256)
     padding = 0
 
