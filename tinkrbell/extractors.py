@@ -47,7 +47,7 @@ def video(uri, size=None, timeout=None, probesize=None):
             #   - Scan rate 1 FPS
             #   - max scan time of t=10s
             #   - > 40% scene change
-            scan_fps=1, max_scan_time=int(min(duration, 10)), scene_change=0.4,
+            scan_fps=1/2, max_scan_time=int(min(duration, 10)), scene_change=0.2,
         ), stdout=subprocess.PIPE)
 
         stdout, __ = process.communicate()
