@@ -15,7 +15,7 @@ from werkzeug.contrib.iterio import IterIO
 
 from tinkrbell import cache, utils
 from tinkrbell.utils import mimetype
-from tinkrbell.utils.ffmpeg import ffmpeg
+from tinkrbell.utils.ffmpeg import ffmpeg, ffprobe
 
 
 class ExtractionError(Exception):
@@ -35,6 +35,11 @@ def image(uri, size=None, timeout=None):
 def video(uri, size=None, timeout=None, probesize=None):
     @cache.memoize()
     def _video(uri):
+        duration = float(ffprobe(
+            '-show_entries format=duration -of csv="p=0" "{input}"'.format(input=utils.uri(uri)),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        ).communicate()[0].strip())
+
         process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
             format='image2',
@@ -42,7 +47,7 @@ def video(uri, size=None, timeout=None, probesize=None):
             #   - Scan rate 1 FPS
             #   - max scan time of t=10s
             #   - > 40% scene change
-            scan_fps=1, max_scan_time=10, scene_change=0.4,
+            scan_fps=1, max_scan_time=int(min(duration, 10)), scene_change=0.4,
         ), stdout=subprocess.PIPE)
 
         stdout, __ = process.communicate()
