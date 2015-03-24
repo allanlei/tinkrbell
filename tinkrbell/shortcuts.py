@@ -22,11 +22,14 @@ def iconify(image, sizes=None):
 
 
 def best_match():
-    mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
-    quality = request.accept_mimetypes[mimetype]
-
-    if quality != 1:
+    try:
+        mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
+        quality = request.accept_mimetypes[mimetype]
+    except:
         return None, None
-    current_app.logger.debug(
-        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
-    return mimetype, FORMATS[mimetype]
+    else:
+        if quality != 1:
+            return None, None
+        current_app.logger.debug(
+            'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
+        return mimetype, FORMATS[mimetype]
