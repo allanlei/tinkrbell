@@ -23,6 +23,7 @@ class ExtractionError(Exception):
 
 
 def image(uri, size=None, timeout=None):
+    MAX_CONTENT_LENGTH = 24 * 1024 * 1024
     FORMAT_HINTS = {
         'image/vnd.microsoft.icon': 'ico',
         'image/x-icon': 'ico',
@@ -33,7 +34,11 @@ def image(uri, size=None, timeout=None):
         current_app.logger.debug('Fetching %s', uri)
         with contextlib.closing(requests.get(uri, stream=True)) as response:
             response.raise_for_status()
-            return response.content, FORMAT_HINTS.get(response.headers.get('content-type'))
+            content_length = response.headers.get('content-length')
+            if content_length and int(content_length) > MAX_CONTENT_LENGTH:
+                raise ExtractionError('Source image is too large (max: {}). {}'.format(
+                    MAX_CONTENT_LENGTH, content_length))
+            return response.iter_content(MAX_CONTENT_LENGTH).next(), FORMAT_HINTS.get(response.headers.get('content-type'))
     blob, mimetype = _image(uri)
     return Image(blob=blob, format=mimetype)
 
