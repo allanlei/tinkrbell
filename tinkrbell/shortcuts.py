@@ -3,8 +3,18 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from flask import current_app, request, Response
 
+import collections
+
 from .extractors import extract
 from .utils.icons import icon
+
+
+FORMATS = collections.defaultdict(lambda: 'image/jpeg', {
+    'image/jpeg': 'jpeg',
+    'image/pjpeg': 'pjpeg',
+    # 'image/webp': 'webp',
+    'image/png': 'png',
+})
 
 
 def iconify(image, sizes=None):
@@ -12,12 +22,6 @@ def iconify(image, sizes=None):
 
 
 def best_match():
-    FORMATS = {
-        'image/jpeg': 'jpeg',
-        'image/pjpeg': 'pjpeg',
-        # 'image/webp': 'webp',
-        'image/png': 'png',
-    }
     mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
     quality = request.accept_mimetypes[mimetype]
 
