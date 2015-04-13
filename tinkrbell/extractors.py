@@ -23,13 +23,19 @@ class ExtractionError(Exception):
 
 
 def image(uri, size=None, timeout=None):
+    FORMAT_HINTS = {
+        'image/vnd.microsoft.icon': 'ico',
+        'image/x-icon': 'ico',
+    }
+
     @cache.memoize()
     def _image(uri):
         current_app.logger.debug('Fetching %s', uri)
         with contextlib.closing(requests.get(uri, stream=True)) as response:
             response.raise_for_status()
-            return response.content
-    return Image(blob=_image(uri))
+            return response.content, FORMAT_HINTS.get(response.headers.get('content-type'))
+    blob, mimetype = _image(uri)
+    return Image(blob=blob, format=mimetype)
 
 
 def video(uri, size=None, timeout=None, probesize=None):
