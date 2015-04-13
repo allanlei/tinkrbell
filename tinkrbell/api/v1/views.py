@@ -64,16 +64,15 @@ def preview(uri, width, height):
             image.compression_quality = 80
             image.resize(*calculators.boundingbox(image, (width, height)))
 
-            if format:
-                image.format = format
-            else:
-                mimetype = image.mimetype
+            if len(image.sequence) == 1:
+                if format:
+                    image.format = format
 
             if image.format.lower() == 'jpeg':
                 image.format = 'pjpeg'
 
             current_app.logger.debug('Generating preview in %s of %s', image.format, uri)
-            return Response(image.make_blob(), mimetype=mimetype)
+            return Response(image.make_blob(), mimetype=image.mimetype)
 
 
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
