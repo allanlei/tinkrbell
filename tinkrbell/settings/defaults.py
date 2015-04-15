@@ -29,3 +29,8 @@ EXTRACTORS = {
     # ('audio', '*'): audio,
     # ('text', '*'): text,
 }
+
+
+MAX_SCAN_TIME = 10.3
+SCENE_CHANGE_THRESHOLD = 0.2
+SCENE_SCAN_FPS = 0.5

@@ -46,10 +46,20 @@ def image(uri, size=None, timeout=None):
 def video(uri, size=None, timeout=None, probesize=None):
     @cache.memoize()
     def _video(uri):
-        duration = float(ffprobe(
-            '-show_entries format=duration -of csv="p=0" "{input}"'.format(input=utils.uri(uri)),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        ).communicate()[0].strip())
+        def _duration():
+            process = ffprobe(
+                '-show_entries format=duration -of csv="p=0" "{input}"'.format(input=utils.uri(uri)),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+            stdout, stderr = process.communicate()
+            if process.returncode != 0:
+                raise Exception(stderr)
+            return float(stdout.strip())
+        try:
+            duration = _duration()
+        except:
+            logger.error('Could not retrieve video duration', exc_info=True)
+            duration = current_app.config['MAX_SCAN_TIME']
 
         process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
             input=utils.uri(uri), output='pipe:1',
@@ -58,7 +68,9 @@ def video(uri, size=None, timeout=None, probesize=None):
             #   - Scan rate 1 FPS
             #   - max scan time of t=10s
             #   - > 40% scene change
-            scan_fps=1/2, max_scan_time=int(min(duration, 10)), scene_change=0.2,
+            scan_fps=current_app.config['SCENE_SCAN_FPS'],
+            max_scan_time=int(min(duration, current_app.config['MAX_SCAN_TIME'])),
+            scene_change=current_app.config['SCENE_CHANGE_THRESHOLD'],
         ), stdout=subprocess.PIPE)
 
         stdout, __ = process.communicate()
