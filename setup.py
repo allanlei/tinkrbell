@@ -14,7 +14,6 @@ setup(
     name='tinkrbell',
     version='1.0.0',
     description='Icon generator',
-    long_description=open('README.md').read(),
     author='Allan Lei',
     author_email='allan.lei@orbweb.com',
     url='https://github.com/Kloudian-Systems-Inc/tinkrbell',
