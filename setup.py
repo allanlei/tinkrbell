@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import sys
-import envoy
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 setup(
@@ -17,8 +10,13 @@ setup(
     author='Allan Lei',
     author_email='allan.lei@orbweb.com',
     url='https://github.com/Kloudian-Systems-Inc/tinkrbell',
-    packages=['tinkrbell'],
+    packages=find_packages(),
     install_requires=[
+        'Flask>=0.10,<0.11',
+        'Flask-Cache>=0.13,<0.14',
+        'mimeparse==0.1.3',
+        'requests>=2.5',
+        'Wand>=0.3,<0.4',
     ],
     license='MIT',
     classifiers=(
