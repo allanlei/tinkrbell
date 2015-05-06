@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name='tinkrbell',
-    version=tinkrbell.__version__,
+    version='1.0.0',
     description='Icon generator',
     long_description=open('README.md').read(),
     author='Allan Lei',
