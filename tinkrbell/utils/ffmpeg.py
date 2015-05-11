@@ -39,7 +39,7 @@ def ffprobe(cmd, bin=None, loglevel=None, encoding=None, **kwargs):
     """
     Usage: ffprobe()
     """
-    bin = bin or current_app.config.get('FFMPEG_BIN') or 'ffprobe'
+    bin = bin or current_app.config.get('FFPROBE_BIN') or 'ffprobe'
     if '-loglevel' not in cmd:
         cmd = '-loglevel {loglevel}'.format(loglevel=loglevel or current_app.config.get('FFPROBE_LOGLEVEL') or 'error') + ' ' + cmd
     else:
