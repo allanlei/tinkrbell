@@ -58,7 +58,7 @@ def video(uri, size=None, timeout=None, probesize=None):
         try:
             duration = _duration()
         except:
-            logger.error('Could not retrieve video duration', exc_info=True)
+            current_app.logger.error('Could not retrieve video duration', exc_info=True)
             duration = current_app.config['MAX_SCAN_TIME']
 
         process = ffmpeg('-i "{input}" -vf "fps=fps={scan_fps},select=gte(t\,{max_scan_time})+gte(scene\,{scene_change})" -vsync vfr -frames:v 1 -sn -dn -an -f {format} {output}'.format(
