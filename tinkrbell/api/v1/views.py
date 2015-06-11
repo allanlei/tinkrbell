@@ -3,11 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from flask import Response, current_app, abort, request
 
-import os
 import base64
 import binascii
-
-from wand.image import Image
 
 from tinkrbell import extractors
 from tinkrbell.utils import calculators

@@ -5,7 +5,6 @@ from flask import current_app, request, Response
 
 import collections
 
-from .extractors import extract
 from .utils.icons import icon
 
 

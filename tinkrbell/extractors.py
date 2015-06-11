@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from flask import current_app
 
 import subprocess
-import shlex
 import contextlib
 import requests
 import datetime
