@@ -23,10 +23,10 @@ def icon(uri, size):
     try:
         image = extractors.extract(uri)
     except AttributeError:
-        current_app.logger.debug('URI not available')
+        current_app.logger.debug('URI not available', exc_info=True)
         abort(404)
     except:
-        current_app.logger.info(
+        current_app.logger.error(
             'Failed to extract image from URI', exc_info=True)
         abort(404)
     return iconify(image, sizes=[size] if size else None)
