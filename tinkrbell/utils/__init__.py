@@ -47,5 +47,5 @@ def mimetype(uri):
     """
     Gets the mimetype of a URI
     """
-    mtype, __ = mimetypes.guess_type(uri)
+    mtype, __ = mimetypes.guess_type(uri, strict=False)
     return mtype
