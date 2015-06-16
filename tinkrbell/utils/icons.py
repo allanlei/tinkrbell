@@ -2,11 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from flask import current_app
-import mimetypes
-import futures
-import multiprocessing
-import urlparse
-import urllib
 
 from wand.image import Image
 
