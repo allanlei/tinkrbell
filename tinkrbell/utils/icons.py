@@ -2,11 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from flask import current_app
-import mimetypes
-import futures
-import multiprocessing
-import urlparse
-import urllib
 
 from wand.image import Image
 
@@ -16,7 +11,9 @@ def icon(image, sizes=None):
     def _icons_full(source, sizes):
         with source.clone() as image:
             for size in reversed(sorted(sizes)):
-                image.transform(resize='{size:d}x{size:d}>'.format(size=size))
+                image.transform(
+                    crop='100%', 
+                    resize='{size:d}x{size:d}>'.format(size=size))
                 yield image.clone()
 
     def _icons_full_filled(source, sizes):

@@ -9,7 +9,7 @@ cache = Cache()
 application = app = Blueprint('tinkrbell.apiv1', __name__)
 
 
-@app.route('/')
+@app.route('/', endpoint='healthcheck')
 def healthcheck():
     return make_response()
 

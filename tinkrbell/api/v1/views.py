@@ -3,11 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from flask import Response, current_app, abort, request
 
-import os
 import base64
 import binascii
-
-from wand.image import Image
 
 from tinkrbell import extractors
 from tinkrbell.utils import calculators
@@ -26,10 +23,10 @@ def icon(uri, size):
     try:
         image = extractors.extract(uri)
     except AttributeError:
-        current_app.logger.debug('URI not available')
+        current_app.logger.debug('URI not available', exc_info=True)
         abort(404)
     except:
-        current_app.logger.info(
+        current_app.logger.error(
             'Failed to extract image from URI', exc_info=True)
         abort(404)
     return iconify(image, sizes=[size] if size else None)
@@ -64,16 +61,15 @@ def preview(uri, width, height):
             image.compression_quality = 80
             image.resize(*calculators.boundingbox(image, (width, height)))
 
-            if format:
-                image.format = format
-            else:
-                mimetype = image.mimetype
+            if len(image.sequence) == 1:
+                if format:
+                    image.format = format
 
             if image.format.lower() == 'jpeg':
                 image.format = 'pjpeg'
 
             current_app.logger.debug('Generating preview in %s of %s', image.format, uri)
-            return Response(image.make_blob(), mimetype=mimetype)
+            return Response(image.make_blob(), mimetype=image.mimetype)
 
 
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])

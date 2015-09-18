@@ -3,9 +3,17 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from flask import current_app, request, Response
 
-from . import errors
-from .extractors import extract
+import collections
+
 from .utils.icons import icon
+
+
+FORMATS = collections.defaultdict(lambda: 'image/jpeg', {
+    'image/jpeg': 'jpeg',
+    'image/pjpeg': 'pjpeg',
+    # 'image/webp': 'webp',
+    'image/png': 'png',
+})
 
 
 def iconify(image, sizes=None):
@@ -13,17 +21,14 @@ def iconify(image, sizes=None):
 
 
 def best_match():
-    FORMATS = {
-        'image/jpeg': 'jpeg',
-        'image/pjpeg': 'pjpeg',
-        'image/webp': 'webp',
-        'image/png': 'png',
-    }
-    mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
-    quality = request.accept_mimetypes[mimetype]
-
-    if quality != 1:
+    try:
+        mimetype = request.accept_mimetypes.best_match(FORMATS.keys())
+        quality = request.accept_mimetypes[mimetype]
+    except:
         return None, None
-    current_app.logger.debug(
-        'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
-    return mimetype, FORMATS[mimetype]
+    else:
+        if quality != 1:
+            return None, None
+        current_app.logger.debug(
+            'Best matched from "%s": %s;q=%s', request.accept_mimetypes, mimetype, quality)
+        return mimetype, FORMATS[mimetype]

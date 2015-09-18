@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from flask import current_app
 import mimetypes
-import futures
-import multiprocessing
 import urlparse
 import urllib
-
-from wand.image import Image
 
 
 def ensure_bytes(value, encoding='utf-8'):
@@ -47,5 +42,5 @@ def mimetype(uri):
     """
     Gets the mimetype of a URI
     """
-    mtype, __ = mimetypes.guess_type(uri)
+    mtype, __ = mimetypes.guess_type(uri, strict=False)
     return mtype
