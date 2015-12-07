@@ -16,7 +16,6 @@ setup(
         'Flask-Cache>=0.13,<0.14',
         'mimeparse==0.1.3',
         'requests>=2.5',
-        'Wand>=0.3,<0.4',
     ],
     license='MIT',
     classifiers=(
