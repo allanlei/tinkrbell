@@ -9,7 +9,7 @@ setup(
     description='Icon generator',
     author='Allan Lei',
     author_email='allan.lei@orbweb.com',
-    url='https://github.com/Kloudian-Systems-Inc/tinkrbell',
+    url='https://github.com/OrbwebInc/tinkrbell',
     packages=find_packages(),
     install_requires=[
         'Flask>=0.10,<0.11',
