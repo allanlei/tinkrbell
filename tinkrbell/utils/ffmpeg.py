@@ -85,17 +85,17 @@ class Media(object):
         except subprocess.CalledProcessError as err:
             raise err
 
-    def icon(self, size=None, seek=None):
+    def icon(self, scale=None, seek=None):
         frames = self.extract(**({'query': ('-ss {}'.format(seek), None)} if seek is not None else {}))
         command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
             preset=PRESETS['ico'],
-            scale=size or '256:-1',
+            scale=scale or '256:-1',
         )
         process = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, __ = process.communicate(frames)
         return stdout
 
-    def preview(self, (width, height), format=None, seek=None):
+    def preview(self, scale, format=None, seek=None):
         frames = self.extract(
             # frames=10,
             **({'query': ('-ss {}'.format(seek), None)} if seek is not None else {})
@@ -103,7 +103,7 @@ class Media(object):
         process = subprocess.Popen(shlex.split(
             'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
                 preset=PRESETS[format or 'jpg'],
-                scale=boundingbox(width, height),
+                scale=scale,
             ),
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # current_app.logger.debug('Generating preview: %s', '{width}:{height}'.format(width=width or '-1', height=height or '-1'))

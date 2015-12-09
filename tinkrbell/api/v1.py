@@ -30,7 +30,7 @@ def icon(uri, size):
 
     seek = request.args.get('seek')
     return Response(
-        Media(uri).preview((size, size), preset, seek=seek),
+        Media(uri).preview(boundingbox(size, size), preset, seek=seek),
         mimetype=mimetype)
 
 
@@ -56,7 +56,7 @@ def preview(uri, width, height):
         """Generating preview: %s using preset "%s"
     - Accepts: %s""", mimetype, preset, request.accept_mimetypes)
     response = Response(
-        Media(uri).preview((width, height), preset, seek=request.args.get('seek')),
+        Media(uri).preview(boundingbox(width, height), preset, seek=request.args.get('seek')),
         mimetype=mimetype)
     # resp.headers['Conten-Disposition'] = ''
     return response
