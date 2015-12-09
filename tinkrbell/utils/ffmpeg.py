@@ -93,7 +93,7 @@ class Media(object):
         # BUG(allanlei): If the remote file is a jpeg and the URL contains special characters, force jpeg_pipe (See https://trac.ffmpeg.org/ticket/4849)
         # FEATURE(allanlei): If the src is http/https, do a HEAD request and check if header "Location: file://..."
         # FEATURE(allanlei): Output to rawvideo/rgba
-        command = 'ffmpeg -v error {prequery} {input_options} -i "{src}" {postquery} -frames:v {frames} -c:v {format} -filter:v "scale={scale}" -map_metadata -1 -an -sn -dn -f image2 pipe:1'.format(
+        command = 'ffmpeg -v error {prequery} {input_options} -i "async:cache:{src}" {postquery} -frames:v {frames} -c:v {format} -filter:v "scale={scale}" -map_metadata -1 -an -sn -dn -f image2 pipe:1'.format(
             src=urlencode(self.src),
             input_options=input_options(self.src),
             format=format, frames=frames,
