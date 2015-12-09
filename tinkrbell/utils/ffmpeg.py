@@ -15,12 +15,12 @@ from tinkrbell.utils import urlencode
 
 PRESETS = {
     'webp-high': '-c:v libwebp -q:v 100',
-    'webp-medium': '-c:v libwebp -q:v 80',
+    'webp-medium': '-c:v libwebp -q:v 90',
     'webp-low': '-c:v libwebp -q:v 30',
 
     'jpg-high': '-c:v mjpeg -q:v 0',
-    'jpg-medium': '-c:v mjpeg -q:v 20',
-    'jpg-low': '-c:v mjpeg -q:v 70',
+    'jpg-medium': '-c:v mjpeg -q:v 10',
+    'jpg-low': '-c:v mjpeg -q:v 60',
 
     # 'pjpeg': '-c:v mjpeg -q:v 0',
 
