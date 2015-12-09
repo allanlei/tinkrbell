@@ -19,9 +19,19 @@ def icon(uri, size):
     """
     Generates an icon from URI.
     """
+    ACCEPT_MIMETYPES = [
+        ('image/webp', operator.ge, 1, 'webp'),
+        ('image/x-icon', operator.ge, 0, 'ico'),
+    ]
+    mimetype, preset = 'image/x-icon', 'ico'
+    for mimetype, op, q, preset in ACCEPT_MIMETYPES:
+        if op(request.accept_mimetypes[mimetype], q):
+            break
+
+    seek = request.args.get('seek')
     return Response(
-        Media(uri).icon('{width}:-1'.format(width=size), seek=request.args.get('seek')),
-        mimetype='image/x-icon')
+        Media(uri).preview((size, size), preset, seek=seek),
+        mimetype=mimetype)
 
 
 @app.route('/preview/<int:width>x<int:height>/<path:uri>', methods=['GET'], endpoint='preview')
