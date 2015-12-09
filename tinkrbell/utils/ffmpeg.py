@@ -89,9 +89,10 @@ class Media(object):
         frames = self.extract(**({'query': ('-ss {}'.format(seek), None)} if seek is not None else {}))
         command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
             preset=PRESETS['ico'],
-            scale=scale or '256:-1',
-        )
-        process = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            scale=scale or '256:-1')
+        process = subprocess.Popen(shlex.split(
+            command
+        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, __ = process.communicate(frames)
         return stdout
 
@@ -100,11 +101,11 @@ class Media(object):
             # frames=10,
             **({'query': ('-ss {}'.format(seek), None)} if seek is not None else {})
         )
+        command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
+            preset=PRESETS[format or 'jpg'],
+            scale=scale)
         process = subprocess.Popen(shlex.split(
-            'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
-                preset=PRESETS[format or 'jpg'],
-                scale=scale,
-            ),
+            command,
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # current_app.logger.debug('Generating preview: %s', '{width}:{height}'.format(width=width or '-1', height=height or '-1'))
 
