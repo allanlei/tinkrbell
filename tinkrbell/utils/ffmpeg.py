@@ -56,7 +56,7 @@ class Media(object):
     @cached_property
     def mimetype(self):
         process = subprocess.Popen(shlex.split(
-            'ffmpeg -v info -i {src}'.format(src=self.src)
+            'ffmpeg -v info -i "{src}"'.format(src=self.src)
         ), stderr=subprocess.PIPE)
         __, stderr = process.communicate()
         for line in stderr.splitlines():
@@ -73,24 +73,25 @@ class Media(object):
         else:
             prequery, postquery = None, query
 
-        return subprocess.check_output(shlex.split(
-            'ffmpeg -v error {prequery} -i {src} {postquery} -frames:v {frames} -c:v {format} -filter:v "scale={scale}" -map_metadata -1 -an -sn -dn -f image2 pipe:1'.format(
-                src=urlencode(self.src),
-                format=format, frames=frames,
-                scale=scale or boundingbox(3840, 2160),
-                prequery=prequery or '',
-                postquery=postquery or '',
-            ),
-        ))
+        command = 'ffmpeg -v error {prequery} -i "{src}" {postquery} -frames:v {frames} -c:v {format} -filter:v "scale={scale}" -map_metadata -1 -an -sn -dn -f image2 pipe:1'.format(
+            src=urlencode(self.src),
+            format=format, frames=frames,
+            scale=scale or boundingbox(3840, 2160),
+            prequery=prequery or '',
+            postquery=postquery or '',
+        )
+        try:
+            return subprocess.check_output(shlex.split(command))
+        except subprocess.CalledProcessError as err:
+            raise err
 
     def icon(self, size=None, seek=None):
         frames = self.extract(**({'query': ('-ss {}'.format(seek), None)} if seek is not None else {}))
-        process = subprocess.Popen(shlex.split(
-            'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
-                preset=PRESETS['ico'],
-                scale=size or '256:-1',
-            ),
-        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
+            preset=PRESETS['ico'],
+            scale=size or '256:-1',
+        )
+        process = subprocess.Popen(shlex.split(command), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, __ = process.communicate(frames)
         return stdout
 
@@ -99,7 +100,6 @@ class Media(object):
             # frames=10,
             **({'query': ('-ss {}'.format(seek), None)} if seek is not None else {})
         )
-
         process = subprocess.Popen(shlex.split(
             'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
                 preset=PRESETS[format or 'jpg'],
