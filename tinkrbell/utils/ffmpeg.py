@@ -79,23 +79,28 @@ class Media(object):
             options = []
             parsed = urlparse.urlparse(src)
             if parsed.scheme in ['http', 'https']:
-                options.append('-multiple_requests 1')
-
                 try:
                     response = requests.head(src)
                 except:
                     current_app.logger.info('Skipping remote file optimizations', exc_info=True)
                 else:
+                    if urlparse.urlparse(response.headers.get('Location') or '').scheme in ['file']:
+                        self.src = response.headers['Location']
+                        current_app.logger.debug(
+                            """Switching protocols: %s -> %s\r\n\tOrigin: %s\r\n\tTo: %s""",
+                            parsed.scheme, urlparse.urlparse(self.src).scheme,
+                            src, self.src)
+                    else:
+                        options.append('-multiple_requests 1')
                     if response.headers.get('Content-Type', None) in ['image/jpeg', 'image/jpg']:
                         options.append('-f jpeg_pipe')
             return ' '.join(options)
 
         # BUG(allanlei): If the remote file is a jpeg and the URL contains special characters, force jpeg_pipe (See https://trac.ffmpeg.org/ticket/4849)
-        # FEATURE(allanlei): If the src is http/https, do a HEAD request and check if header "Location: file://..."
         # FEATURE(allanlei): Output to rawvideo/rgba
         command = 'ffmpeg -v error {prequery} {input_options} -i "async:cache:{src}" {postquery} -frames:v {frames} -c:v {format} -filter:v "scale={scale}" -map_metadata -1 -an -sn -dn -f image2 pipe:1'.format(
-            src=urlencode(self.src),
             input_options=input_options(self.src),
+            src=urlencode(self.src),
             format=format, frames=frames,
             scale=scale or boundingbox(3840, 2160),
             prequery=prequery or '',
