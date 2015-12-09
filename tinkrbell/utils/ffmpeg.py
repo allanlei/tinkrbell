@@ -101,6 +101,7 @@ class Media(object):
             prequery=prequery or '',
             postquery=postquery or '',
         )
+        current_app.logger.debug('Running: %s', command)
         try:
             return subprocess.check_output(shlex.split(command))
         except subprocess.CalledProcessError as err:
@@ -111,6 +112,7 @@ class Media(object):
         command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
             preset=PRESETS['ico'],
             scale=scale or '256:-1')
+        current_app.logger.debug('Running: %s', command)
         process = subprocess.Popen(shlex.split(
             command
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -125,6 +127,7 @@ class Media(object):
         command = 'ffmpeg -v error -f image2pipe -c:v mjpeg -i pipe:0 {preset} -filter:v "scale={scale}" -f image2 pipe:1'.format(
             preset=PRESETS[format or 'jpg'],
             scale=scale)
+        current_app.logger.debug('Running: %s', command)
         process = subprocess.Popen(shlex.split(
             command,
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
