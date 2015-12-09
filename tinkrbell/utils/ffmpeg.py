@@ -81,9 +81,13 @@ class Media(object):
             if parsed.scheme in ['http', 'https']:
                 options.append('-multiple_requests 1')
 
-                response = requests.head(src)
-                if response.headers.get('Content-Type', None) in ['image/jpeg', 'image/jpg']:
-                    options.append('-f jpeg_pipe')
+                try:
+                    response = requests.head(src)
+                except:
+                    current_app.logger.info('Skipping remote file optimizations', exc_info=True)
+                else:
+                    if response.headers.get('Content-Type', None) in ['image/jpeg', 'image/jpg']:
+                        options.append('-f jpeg_pipe')
             return ' '.join(options)
 
         # BUG(allanlei): If the remote file is a jpeg and the URL contains special characters, force jpeg_pipe (See https://trac.ffmpeg.org/ticket/4849)
