@@ -163,7 +163,7 @@ class Media(object):
             - Percentage: 100%
         """
         frame = self.extract(
-            query=('-f image2', None),
+            # query=('-f image2', None),
             # format='copy', scale='w:h',
         )
         current_app.logger.debug('Resize image: %s', scale)
