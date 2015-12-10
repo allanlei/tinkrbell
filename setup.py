@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'Flask>=0.10,<0.11',
         'Flask-Cache>=0.13,<0.14',
+        'requests>=2.8',
     ],
     license='MIT',
     classifiers=(
