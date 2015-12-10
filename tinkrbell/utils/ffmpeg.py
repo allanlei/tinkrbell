@@ -106,9 +106,20 @@ class Media(object):
             prequery=prequery or '',
             postquery=postquery or '',
         )
-        current_app.logger.debug('Running: %s', command)
+
+        cmd = shlex.split(command)
+        if cmd.count('-filter:v') > 1:
+            filters = b','.join([cmd[i + 1] for i, option in enumerate(cmd) if option == '-filter:v'])
+            removals = [index for index, part in enumerate(cmd) if part == '-filter:v']
+            for removal in reversed(sorted(removals)):
+                cmd.pop(removal + 1)
+                cmd.pop(removal)
+            cmd.insert(len(cmd) - 1, b'-filter:v')
+            cmd.insert(len(cmd) - 1, filters)
+
+        current_app.logger.debug('Running: %s', ' '.join(cmd))
         try:
-            return subprocess.check_output(shlex.split(command))
+            return subprocess.check_output(cmd)
         except subprocess.CalledProcessError as err:
             raise err
 
