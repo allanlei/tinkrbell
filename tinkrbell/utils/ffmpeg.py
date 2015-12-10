@@ -90,8 +90,8 @@ class Media(object):
                             """Switching protocols: %s -> %s\r\n\tOrigin: %s\r\n\tTo: %s""",
                             parsed.scheme, urlparse.urlparse(self.src).scheme,
                             src, self.src)
-                    else:
-                        options.append('-multiple_requests 1')
+                    # else:
+                    #     options.append('-multiple_requests 1')
                     if response.headers.get('Content-Type', None) in ['image/jpeg', 'image/jpg']:
                         options.append('-f jpeg_pipe')
             return ' '.join(options)
