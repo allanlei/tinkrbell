@@ -61,7 +61,7 @@ def preview(uri, width, height):
         if op(mimetype_q, q) and mimetype_q > default_mimetype_q:
             break
 
-    current_app.logger.debug(
+    current_app.logger.info(
         """Generating preview: %s using preset "%s"
     - Accepts: %s""", mimetype, preset, request.accept_mimetypes)
     response = Response(
