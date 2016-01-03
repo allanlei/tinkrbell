@@ -119,9 +119,9 @@ class Media(object):
 
         current_app.logger.debug('Running: %s', ' '.join(cmd))
         try:
-            return subprocess.check_output(cmd)
+            return subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as err:
-            raise err
+            raise errors.FFmpegError(err.output)
 
     def icon(self, scale=None, seek=None):
         frames = self.extract(**({'query': ('-ss {}'.format(seek), None)} if seek is not None else {}))
