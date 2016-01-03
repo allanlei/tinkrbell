@@ -131,8 +131,10 @@ class Media(object):
         current_app.logger.debug('Running: %s', command)
         process = subprocess.Popen(shlex.split(
             command
-        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, __ = process.communicate(frames)
+        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(frames)
+        if process.returncode != 0:
+            raise errors.FFmpegError(stderr)
         return stdout
 
     def preview(self, scale, format=None, seek=None):
@@ -171,6 +173,8 @@ class Media(object):
             'ffmpeg -v error -f image2pipe -i pipe:0 -filter:v "scale={scale}" -f image2 pipe:1'.format(
                 scale=scale,
             ),
-        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, __ = process.communicate(frame)
+        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(frame)
+        if process.returncode != 0:
+            raise errors.FFmpegError(stderr)
         return stdout
