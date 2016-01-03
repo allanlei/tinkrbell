@@ -149,8 +149,6 @@ class Media(object):
         process = subprocess.Popen(shlex.split(
             command,
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # current_app.logger.debug('Generating preview: %s', '{width}:{height}'.format(width=width or '-1', height=height or '-1'))
-
         stdout, stderr = process.communicate(frames)
         if process.returncode != 0:
             raise errors.FFmpegError(stderr)
