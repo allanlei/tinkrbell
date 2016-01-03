@@ -151,7 +151,7 @@ class Media(object):
 
         stdout, stderr = process.communicate(frames)
         if process.returncode != 0:
-            raise errors.FFmpegError(stderr, process)
+            raise errors.FFmpegError(stderr)
         return stdout
 
     def resize(self, scale):

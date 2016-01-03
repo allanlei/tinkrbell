@@ -3,6 +3,4 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 
 class FFmpegError(Exception):
-    def __init__(self, message, process):
-        super(FFmpegError, self).__init__(message)
-        self.process = process
+    pass
