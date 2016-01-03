@@ -19,16 +19,22 @@ def icon(uri, size):
     """
     Generates an icon from URI.
     """
-    ACCEPT_MIMETYPES = [
+    DEFAULT_MIMETYPE, DEFAULT_PRESET = 'image/x-icon', 'ico'
+    default_mimetype_q = request.accept_mimetypes[DEFAULT_MIMETYPE]
+    ACCEPT_MIMETYPES = (
         ('image/webp', operator.ge, 1, 'webp'),
-        ('image/x-icon', operator.ge, 0, 'ico'),
-    ]
-    mimetype, preset = 'image/x-icon', 'ico'
+        (DEFAULT_MIMETYPE, operator.ge, 0, DEFAULT_PRESET),
+    )
+
     for mimetype, op, q, preset in ACCEPT_MIMETYPES:
-        if op(request.accept_mimetypes[mimetype], q):
+        mimetype_q = request.accept_mimetypes[mimetype]
+        if op(mimetype_q, q) and mimetype_q > default_mimetype_q:
             break
 
     seek = request.args.get('seek')
+    current_app.logger.info(
+        """Generating icon: %s using preset "%s"
+    - Accepts: %s""", mimetype, preset, request.accept_mimetypes)
     return Response(
         Media(uri).preview(boundingbox(size, size), preset, seek=seek),
         mimetype=mimetype)
@@ -43,13 +49,16 @@ def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.
     """
-    ACCEPT_MIMETYPES = [
+    DEFAULT_MIMETYPE, DEFAULT_PRESET = 'image/jpeg', 'jpg'
+    default_mimetype_q = request.accept_mimetypes[DEFAULT_MIMETYPE]
+    ACCEPT_MIMETYPES = (
         ('image/webp', operator.ge, 1, 'webp'),
-        ('image/jpeg', operator.ge, 0, 'jpg'),
-    ]
-    mimetype, preset = 'image/jpeg', 'jpg'
+        (DEFAULT_MIMETYPE, operator.ge, 0, DEFAULT_PRESET),
+    )
+
     for mimetype, op, q, preset in ACCEPT_MIMETYPES:
-        if op(request.accept_mimetypes[mimetype], q):
+        mimetype_q = request.accept_mimetypes[mimetype]
+        if op(mimetype_q, q) and mimetype_q > default_mimetype_q:
             break
 
     current_app.logger.debug(
