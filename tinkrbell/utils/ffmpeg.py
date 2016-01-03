@@ -66,7 +66,7 @@ class Media(object):
             if matched:
                 return TYPES.get(matched.groupdict().get('type'))
 
-    def extract(self, query=(None, '-filter:v "fps=fps=0.5,select=between(t\,0\,10)+gte(scene\,0.4)" -vsync vfr'), frames=1, format='mjpeg', scale=None):
+    def extract(self, query=(None, '-filter:v "fps=fps=1,thumbnail=5"'), frames=1, format='mjpeg', scale=None):
         """
         Extracts an "interesting" image from media source, if possible.
         """
