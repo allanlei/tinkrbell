@@ -19,10 +19,10 @@ def icon(uri, size):
     """
     Generates an icon from URI.
     """
-    ACCEPT_MIMETYPES = [
+    ACCEPT_MIMETYPES = (
         ('image/webp', operator.ge, 1, 'webp'),
         ('image/x-icon', operator.ge, 0, 'ico'),
-    ]
+    )
     mimetype, preset = 'image/x-icon', 'ico'
     for mimetype, op, q, preset in ACCEPT_MIMETYPES:
         if op(request.accept_mimetypes[mimetype], q):
@@ -43,10 +43,10 @@ def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.
     """
-    ACCEPT_MIMETYPES = [
+    ACCEPT_MIMETYPES = (
         ('image/webp', operator.ge, 1, 'webp'),
         ('image/jpeg', operator.ge, 0, 'jpg'),
-    ]
+    )
     mimetype, preset = 'image/jpeg', 'jpg'
     for mimetype, op, q, preset in ACCEPT_MIMETYPES:
         if op(request.accept_mimetypes[mimetype], q):
