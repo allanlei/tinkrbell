@@ -6,6 +6,7 @@ from flask import Blueprint, Response, current_app, request
 import operator
 
 from tinkrbell import cache
+from tinkrbell.decorators import vary
 from tinkrbell.utils.ffmpeg import boundingbox, Media
 
 
@@ -15,6 +16,7 @@ application = app = Blueprint('tinkrbell.apiv1', __name__)
 @app.route('/icon/<int:size>/<path:uri>', methods=['GET'])
 @app.route('/icon/<path:uri>', methods=['GET'], endpoint='icon', defaults={'size': 256})
 @cache.cached()
+@vary('Accept')
 def icon(uri, size):
     """
     Generates an icon from URI.
@@ -45,6 +47,7 @@ def icon(uri, size):
 @app.route('/preview/x<int:height>/<path:uri>', methods=['GET'], defaults={'width': None})
 @app.route('/preview/<int:width>/<path:uri>', methods=['GET'], defaults={'height': None})
 @cache.cached()
+@vary('Accept')
 def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.
