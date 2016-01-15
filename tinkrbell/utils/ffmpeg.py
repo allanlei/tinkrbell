@@ -66,7 +66,7 @@ class Media(object):
             if matched:
                 return TYPES.get(matched.groupdict().get('type'))
 
-    def extract(self, query=(None, '-filter:v "fps=fps=0.5,select=between(t\,0\,10)+gte(scene\,0.4)" -vsync vfr'), frames=1, format='mjpeg', scale=None):
+    def extract(self, query=(None, '-filter:v "fps=fps=1,thumbnail=5"'), frames=1, format='mjpeg', scale=None):
         """
         Extracts an "interesting" image from media source, if possible.
         """
@@ -119,9 +119,9 @@ class Media(object):
 
         current_app.logger.debug('Running: %s', ' '.join(cmd))
         try:
-            return subprocess.check_output(cmd)
+            return subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as err:
-            raise err
+            raise errors.FFmpegError(err.output)
 
     def icon(self, scale=None, seek=None):
         frames = self.extract(**({'query': ('-ss {}'.format(seek), None)} if seek is not None else {}))
@@ -131,8 +131,10 @@ class Media(object):
         current_app.logger.debug('Running: %s', command)
         process = subprocess.Popen(shlex.split(
             command
-        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, __ = process.communicate(frames)
+        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(frames)
+        if process.returncode != 0:
+            raise errors.FFmpegError(stderr)
         return stdout
 
     def preview(self, scale, format=None, seek=None):
@@ -147,11 +149,9 @@ class Media(object):
         process = subprocess.Popen(shlex.split(
             command,
         ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # current_app.logger.debug('Generating preview: %s', '{width}:{height}'.format(width=width or '-1', height=height or '-1'))
-
         stdout, stderr = process.communicate(frames)
         if process.returncode != 0:
-            raise errors.FFmpegError(stderr, process)
+            raise errors.FFmpegError(stderr)
         return stdout
 
     def resize(self, scale):
@@ -171,6 +171,8 @@ class Media(object):
             'ffmpeg -v error -f image2pipe -i pipe:0 -filter:v "scale={scale}" -f image2 pipe:1'.format(
                 scale=scale,
             ),
-        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, __ = process.communicate(frame)
+        ), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(frame)
+        if process.returncode != 0:
+            raise errors.FFmpegError(stderr)
         return stdout
