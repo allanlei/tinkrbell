@@ -7,16 +7,24 @@ import operator
 
 from tinkrbell import cache
 from tinkrbell.decorators import vary
+from tinkrbell.utils import encode
 from tinkrbell.utils.ffmpeg import boundingbox, Media
 
 
 application = app = Blueprint('tinkrbell.apiv1', __name__)
 
 
+def vary_accept_key_prefix():
+    return 'view/{}|{vary}'.format(
+        request.path,
+        vary=encode(hash(frozenset(list(request.accept_mimetypes)))),
+    )
+
+
 @app.route('/icon/<int:size>/<path:uri>', methods=['GET'])
 @app.route('/icon/<path:uri>', methods=['GET'], endpoint='icon', defaults={'size': 256})
-@cache.cached()
 @vary('Accept')
+@cache.cached(key_prefix=vary_accept_key_prefix)
 def icon(uri, size):
     """
     Generates an icon from URI.
@@ -46,8 +54,8 @@ def icon(uri, size):
 @app.route('/preview/<int:width>x/<path:uri>', methods=['GET'], defaults={'height': None})
 @app.route('/preview/x<int:height>/<path:uri>', methods=['GET'], defaults={'width': None})
 @app.route('/preview/<int:width>/<path:uri>', methods=['GET'], defaults={'height': None})
-@cache.cached()
 @vary('Accept')
+@cache.cached(key_prefix=vary_accept_key_prefix)
 def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.

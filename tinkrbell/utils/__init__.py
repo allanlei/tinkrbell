@@ -3,6 +3,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import urlparse
 import urllib
+import string
+
+
+ALPHABET = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_'
+BASE = len(ALPHABET)
+SIGN_CHARACTER = '$'
 
 
 def urlencode(url):
@@ -38,3 +44,15 @@ def urlencode(url):
     # put it back together
     netloc = ''.join((user, colon1, pass_, at, host, colon2, port))
     return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
+
+
+def encode(n):
+    if n < 0:
+        return SIGN_CHARACTER + encode(-n)
+    s = []
+    while True:
+        n, r = divmod(n, BASE)
+        s.append(ALPHABET[r])
+        if n == 0:
+            break
+    return ''.join(reversed(s))
