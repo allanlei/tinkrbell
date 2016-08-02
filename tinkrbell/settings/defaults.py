@@ -7,6 +7,11 @@ import os
 CELERY_RESULTS_BACKEND = os.environ.get('CELERY_RESULTS_BACKEND')
 CELERY_BROKER = os.environ.get('CELERY_BROKER')
 
+MONGODB_SETTINGS = {
+    'host': os.environ.get('MONGODB_URL'),
+}
+
+
 # MAX_SCAN_TIME = 10.3
 # SCENE_CHANGE_THRESHOLD = 0.2
 # SCENE_SCAN_FPS = 0.5
