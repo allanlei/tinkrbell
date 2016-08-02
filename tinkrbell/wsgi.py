@@ -5,12 +5,16 @@ from flask import Flask
 
 import os
 
+from . import transformers
+
 
 def get_application(root_path=None):
     app = Flask(__name__)
     app.config.from_object('tinkrbell.settings.defaults')
     if os.environ.get('SETTINGS_MODULE'):
         app.config.from_object(os.environ.get('SETTINGS_MODULE'))
+
+    app.url_map.converters['b64'] = transformers.Base64Converter
 
     from . import cache
     cache.init_app(app)
