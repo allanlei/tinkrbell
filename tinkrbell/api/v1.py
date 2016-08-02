@@ -26,8 +26,6 @@ def vary_accept_key_prefix():
 @app.route('/icon/<int:size>/<b64:uri>', methods=['GET'])
 @app.route('/icon/<b64:uri>', methods=['GET'], defaults={'size': 256})
 @authenticated()
-@vary('Accept')
-@cache.cached(key_prefix=vary_accept_key_prefix)
 def icon(uri, size):
     """
     Generates an icon from URI.
@@ -62,8 +60,6 @@ def icon(uri, size):
 @app.route('/preview/x<int:height>/<b64:uri>', methods=['GET'], defaults={'width': None})
 @app.route('/preview/<int:width>/<b64:uri>', methods=['GET'], defaults={'height': None})
 @authenticated()
-@vary('Accept')
-@cache.cached(key_prefix=vary_accept_key_prefix)
 def preview(uri, width, height):
     """
     Generates a preview of the URI returning the best image format supported by the browser.
@@ -86,7 +82,6 @@ def preview(uri, width, height):
     response = Response(
         Media(uri).preview(boundingbox(width, height), preset, seek=request.args.get('seek')),
         mimetype=mimetype)
-    # resp.headers['Conten-Disposition'] = ''
     return response
 
 
