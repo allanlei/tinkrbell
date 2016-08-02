@@ -23,6 +23,8 @@ def vary_accept_key_prefix():
 
 @app.route('/icon/<int:size>/<path:uri>', methods=['GET'])
 @app.route('/icon/<path:uri>', methods=['GET'], endpoint='icon', defaults={'size': 256})
+@app.route('/icon/<int:size>/<b64:uri>', methods=['GET'])
+@app.route('/icon/<b64:uri>', methods=['GET'], defaults={'size': 256})
 @vary('Accept')
 @cache.cached(key_prefix=vary_accept_key_prefix)
 def icon(uri, size):
@@ -32,7 +34,7 @@ def icon(uri, size):
     DEFAULT_MIMETYPE, DEFAULT_PRESET = 'image/x-icon', 'ico'
     default_mimetype_q = request.accept_mimetypes[DEFAULT_MIMETYPE]
     ACCEPT_MIMETYPES = (
-        ('image/webp', operator.ge, 1, 'webp'),
+        # ('image/webp', operator.ge, 1, 'webp'),
         (DEFAULT_MIMETYPE, operator.ge, 0, DEFAULT_PRESET),
     )
 
@@ -54,6 +56,10 @@ def icon(uri, size):
 @app.route('/preview/<int:width>x/<path:uri>', methods=['GET'], defaults={'height': None})
 @app.route('/preview/x<int:height>/<path:uri>', methods=['GET'], defaults={'width': None})
 @app.route('/preview/<int:width>/<path:uri>', methods=['GET'], defaults={'height': None})
+@app.route('/preview/<int:width>x<int:height>/<b64:uri>', methods=['GET'])
+@app.route('/preview/<int:width>x/<b64:uri>', methods=['GET'], defaults={'height': None})
+@app.route('/preview/x<int:height>/<b64:uri>', methods=['GET'], defaults={'width': None})
+@app.route('/preview/<int:width>/<b64:uri>', methods=['GET'], defaults={'height': None})
 @vary('Accept')
 @cache.cached(key_prefix=vary_accept_key_prefix)
 def preview(uri, width, height):
@@ -63,7 +69,7 @@ def preview(uri, width, height):
     DEFAULT_MIMETYPE, DEFAULT_PRESET = 'image/jpeg', 'jpg'
     default_mimetype_q = request.accept_mimetypes[DEFAULT_MIMETYPE]
     ACCEPT_MIMETYPES = (
-        ('image/webp', operator.ge, 1, 'webp'),
+        # ('image/webp', operator.ge, 1, 'webp'),
         (DEFAULT_MIMETYPE, operator.ge, 0, DEFAULT_PRESET),
     )
 
@@ -83,6 +89,7 @@ def preview(uri, width, height):
 
 
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
+@app.route('/resize/<int:width>x<int:height>/<b64:uri>', methods=['GET'])
 @cache.cached()
 def resize_by_boundingbox(uri, width, height):
     """
