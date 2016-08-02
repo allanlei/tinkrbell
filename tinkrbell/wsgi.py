@@ -19,3 +19,6 @@ def get_application(root_path=None):
     app.register_blueprint(tinkrbell.api.v1.application, url_prefix='/1')
 
     return app
+
+
+app = get_application()

@@ -1,3 +1,6 @@
-web: python manage.py runserver --debug --reload -h 0.0.0.0 -p $PORT
+web: python -m flask run -h 0.0.0.0 -p $PORT --debugger --reload
 
-shell: python manage.py shell
+demo: twistd --pidfile= -n web --path demo --port $PORT
+images: twistd --pidfile= -n web --path ~/ --port $PORT
+
+shell: python -m flask shell
