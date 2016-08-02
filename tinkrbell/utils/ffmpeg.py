@@ -81,7 +81,7 @@ class Media(object):
             if parsed.scheme in ['http', 'https']:
                 try:
                     response = requests.head(src)
-                except:
+                except Exception:
                     current_app.logger.info('Skipping remote file optimizations', exc_info=True)
                 else:
                     if urlparse.urlparse(response.headers.get('Location') or '').scheme in ['file']:
