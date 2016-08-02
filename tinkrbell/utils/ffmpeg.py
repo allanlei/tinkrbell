@@ -16,9 +16,9 @@ from tinkrbell.utils import urlencode
 
 
 PRESETS = {
-    'webp-high': '-c:v libwebp -q:v 100',
-    'webp-medium': '-c:v libwebp -q:v 90',
-    'webp-low': '-c:v libwebp -q:v 30',
+    # 'webp-high': '-c:v libwebp -q:v 100',
+    # 'webp-medium': '-c:v libwebp -q:v 90',
+    # 'webp-low': '-c:v libwebp -q:v 30',
 
     'jpg-high': '-c:v mjpeg -q:v 0',
     'jpg-medium': '-c:v mjpeg -q:v 10',
@@ -30,7 +30,7 @@ PRESETS = {
     'ico': '-c:v bmp',
 }
 PRESETS['jpg'] = PRESETS['jpg-medium']
-PRESETS['webp'] = PRESETS['webp-medium']
+# PRESETS['webp'] = PRESETS['webp-medium']
 MIMETYPE_PATTERN = re.compile(r'^Stream #0:0: \w+: (?P<type>\w+),')
 TYPES = {
     'png': 'image/png',
