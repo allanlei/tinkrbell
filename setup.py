@@ -5,11 +5,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='tinkrbell',
-    version='1.0.0',
-    description='Icon generator',
+    version='2.0.0',
+    description='Thumbnail generator',
     author='Allan Lei',
-    author_email='allan.lei@orbweb.com',
-    url='https://github.com/OrbwebInc/tinkrbell',
+    author_email='allanlei@helveticode.com',
+    url='https://github.com/allanlei/tinkrbell',
     packages=find_packages(),
     install_requires=[
         'Flask>=0.10,<0.11',
