@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from flask import after_this_request
+from flask import current_app, after_this_request
 
 import decorator
 
@@ -15,3 +15,9 @@ def vary(*headers):
             return response
         return f(*args, **kwargs)
     return decorator.decorator(_vary)
+
+
+def authenticated():
+    def _authenticated(f, *args, **kwargs):
+        return f(*args, **kwargs)
+    return decorator.decorator(_authenticated)

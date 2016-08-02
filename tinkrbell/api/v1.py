@@ -6,7 +6,7 @@ from flask import Blueprint, Response, current_app, request
 import operator
 
 from tinkrbell import cache
-from tinkrbell.decorators import vary
+from tinkrbell.api.decorators import vary, authenticated
 from tinkrbell.utils import encode
 from tinkrbell.utils.ffmpeg import boundingbox, Media
 
@@ -25,6 +25,7 @@ def vary_accept_key_prefix():
 @app.route('/icon/<path:uri>', methods=['GET'], endpoint='icon', defaults={'size': 256})
 @app.route('/icon/<int:size>/<b64:uri>', methods=['GET'])
 @app.route('/icon/<b64:uri>', methods=['GET'], defaults={'size': 256})
+@authenticated()
 @vary('Accept')
 @cache.cached(key_prefix=vary_accept_key_prefix)
 def icon(uri, size):
@@ -60,6 +61,7 @@ def icon(uri, size):
 @app.route('/preview/<int:width>x/<b64:uri>', methods=['GET'], defaults={'height': None})
 @app.route('/preview/x<int:height>/<b64:uri>', methods=['GET'], defaults={'width': None})
 @app.route('/preview/<int:width>/<b64:uri>', methods=['GET'], defaults={'height': None})
+@authenticated()
 @vary('Accept')
 @cache.cached(key_prefix=vary_accept_key_prefix)
 def preview(uri, width, height):
@@ -90,6 +92,7 @@ def preview(uri, width, height):
 
 @app.route('/resize/<int:width>x<int:height>/<path:uri>', methods=['GET'])
 @app.route('/resize/<int:width>x<int:height>/<b64:uri>', methods=['GET'])
+@authenticated()
 @cache.cached()
 def resize_by_boundingbox(uri, width, height):
     """
