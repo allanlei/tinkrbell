@@ -19,5 +19,6 @@ def vary(*headers):
 
 def authenticated():
     def _authenticated(f, *args, **kwargs):
+        current_app.logger.debug('Skipping authentication')
         return f(*args, **kwargs)
     return decorator.decorator(_authenticated)
